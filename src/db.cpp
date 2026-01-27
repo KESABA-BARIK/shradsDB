@@ -41,3 +41,7 @@ void DB::del(const std::string& key) {
     storage.appenddel(key);
     store.erase(key);
 }
+
+void DB::snapshot() {
+    storage.snapshot(store);
+}

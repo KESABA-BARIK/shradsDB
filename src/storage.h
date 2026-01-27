@@ -12,6 +12,8 @@ public:
     void appendput(const std::string& key, const std::string& value);
     void appenddel(const std::string& key);
 
+    void snapshot(const std::unordered_map<std::string, std::string>& data);
+
     const std::unordered_map<std::string, std::string>& load() const;
 
     private:

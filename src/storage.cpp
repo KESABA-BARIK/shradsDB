@@ -8,6 +8,15 @@ Storage::Storage(const std::string& file)
     }
 
 void Storage::replay() {
+    std::ifstream snap("snapshot.db");
+    if (snap.is_open()) {
+        std::string key, value;
+        while (snap >> key >> value) {
+            kv[key] = value;
+        }
+        snap.close();
+    }
+
     std::ifstream in(filename);
     if (!in.is_open()) return;
 
@@ -42,4 +51,16 @@ void Storage::appendput(const std::string& key, const std::string& value) {
 void Storage::appenddel(const std::string& key) {
     std::ofstream out(filename, std::ios::app);
     out << "DEL " << key << "\n";
+}
+
+void Storage::snapshot(const std::unordered_map<std::string, std::string>& data) {
+    std::ofstream out("snapshot.tmp");
+    for (const auto& [key, value] : data) {
+        out << key << " " << value << "\n";
+    }
+    out.close();
+    std::remove("snapshot.db");
+    std::rename("snapshot.tmp", "snapshot.db");
+
+    std::ofstream clearLog(filename, std::ios::trunc);
 }

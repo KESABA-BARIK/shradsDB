@@ -55,6 +55,7 @@ int main() {
             continue;
         }
         else if(command == "exit"){
+            db.snapshot();
             break;
         }
         else{

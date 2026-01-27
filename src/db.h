@@ -16,6 +16,7 @@ class DB {
         void put(const std::string& key, const std::string& value);
         std::optional<std::string> get(const std::string& key);
         void del(const std::string& key);
+        void snapshot();
 
     private:
         std::unordered_map<std::string, std::string> store;
