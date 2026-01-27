@@ -1,18 +1,45 @@
 #include "storage.h"
-Storage::Storage(const std::string& filename) {
-    logFile.open(filename, std::ios::app);
+#include <fstream>
+#include <sstream>
+
+Storage::Storage(const std::string& file)
+    :filename(file){
+        replay();
+    }
+
+void Storage::replay() {
+    std::ifstream in(filename);
+    if (!in.is_open()) return;
+
+    std::string line;
+    while (std::getline(in, line)) {
+        std::istringstream iss(line);
+
+        std::string cmd, key, value;
+        iss >> cmd;
+
+        if (cmd == "PUT") {
+            iss >> key >> value;
+            kv[key] = value;
+        }
+        else if (cmd == "DEL") {
+            iss >> key;
+            kv.erase(key);
+        }
+    }
+}
+
+const std::unordered_map<std::string, std::string>& Storage::load() const {
+    return kv;
 }
 
 void Storage::appendput(const std::string& key, const std::string& value) {
-    if (logFile.is_open()) {
-        logFile << "PUT " << key << " " << value << "\n";
-        logFile.flush();
-    }
+    std::ofstream out(filename, std::ios::app);
+    out << "PUT " << key << " " << value << "\n";
+
 }
 
 void Storage::appenddel(const std::string& key) {
-    if (logFile.is_open()) {
-        logFile << "DEL " << key << "\n";
-        logFile.flush();
-    }
+    std::ofstream out(filename, std::ios::app);
+    out << "DEL " << key << "\n";
 }

@@ -3,16 +3,22 @@
 
 #include <string>
 #include <fstream>
+#include <unordered_map>
 
 class Storage {
 public:
-    explicit Storage(const std::string& filename);
+    Storage(const std::string& filename);
 
     void appendput(const std::string& key, const std::string& value);
     void appenddel(const std::string& key);
 
+    const std::unordered_map<std::string, std::string>& load() const;
+
     private:
-        std::ofstream logFile;
+        std::string filename;
+        std::unordered_map<std::string, std::string> kv;
+
+        void replay();
 };
 
 #endif // STORAGE_H
