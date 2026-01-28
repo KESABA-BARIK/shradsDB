@@ -39,7 +39,7 @@ void Storage::replay() {
     }
 }
 
-const std::unordered_map<std::string, std::string>& Storage::load() const {
+const std::map<std::string, std::string>& Storage::load() const {
     return kv;
 }
 
@@ -54,7 +54,7 @@ void Storage::appenddel(const std::string& key) {
     out << "DEL " << key << "\n";
 }
 
-void Storage::snapshot(const std::unordered_map<std::string, std::string>& data) {
+void Storage::snapshot(const std::map<std::string, std::string>& data) {
 
     const std::string tmp = "snapshot.tmp";
     const std::string snap = "snapshot.db";

@@ -54,6 +54,27 @@ int main() {
             std::cout << "Deleted key: " << key << "\n";
             continue;
         }
+        else if (command == "range") {
+            std::string start, end;
+            iss >> start >> end;
+
+            if (start.empty() || end.empty()) {
+                std::cout << "Usage: range <startKey> <endKey>\n";
+                continue;
+            }
+
+            auto results = db.getRange(start, end);
+
+            if (results.empty()) {
+                std::cout << "No keys in range\n";
+            } else {
+                for (const auto& [key, value] : results) {
+                    std::cout << key << " => " << value << "\n";
+                }
+            }
+            continue;
+        }
+
         else if(command == "exit"){
             db.snapshot();
             break;

@@ -2,9 +2,9 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 DB::DB(const std::string& filename) : storage(filename) {
-    store.reserve(100000);
     store = storage.load();
     std::ifstream infile(filename);
     std::string line;
@@ -36,6 +36,19 @@ std::optional<std::string> DB::get(const std::string& key) {
         return it->second;
     }
     return std::nullopt;
+}
+
+std::vector<std::pair<std::string, std::string>> DB::getRange(const std::string& start, const std::string& end) {
+    std::vector<std::pair<std::string, std::string>> result;
+
+    auto it = store.lower_bound(start);
+
+    while (it != store.end() && it->first <= end) {
+        result.push_back(*it);
+        ++it;
+    }
+
+    return result;
 }
 
 void DB::del(const std::string& key) {
