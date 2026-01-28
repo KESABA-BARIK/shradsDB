@@ -5,6 +5,7 @@
 #include <optional>
 #include <unordered_map>
 #include <vector>
+#include <shared_mutex>
 
 
 #include "storage.h"
@@ -23,6 +24,7 @@ class DB {
     private:
         std::map<std::string, std::string> store;
         Storage storage;
+        std::shared_mutex rwlock;
 };
 
 #endif // DB_H

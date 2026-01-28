@@ -26,11 +26,13 @@ DB::DB(const std::string& filename) : storage(filename) {
 }
 
 void DB::put(const std::string& key, const std::string& value) {
+    std::shared_lock lock(rwlock);
     storage.appendput(key, value);
     store[key] = value;
 }
 
 std::optional<std::string> DB::get(const std::string& key) {
+    std::shared_lock shared_lock(rwlock);
     auto it = store.find(key);
     if (it != store.end()) {
         return it->second;
@@ -39,6 +41,8 @@ std::optional<std::string> DB::get(const std::string& key) {
 }
 
 std::vector<std::pair<std::string, std::string>> DB::getRange(const std::string& start, const std::string& end) {
+    
+    std::shared_lock shared_lock(rwlock);
     std::vector<std::pair<std::string, std::string>> result;
 
     auto it = store.lower_bound(start);
@@ -52,10 +56,12 @@ std::vector<std::pair<std::string, std::string>> DB::getRange(const std::string&
 }
 
 void DB::del(const std::string& key) {
+    std::shared_lock lock(rwlock);
     storage.appenddel(key);
     store.erase(key);
 }
 
 void DB::snapshot() {
+    std::shared_lock lock(rwlock);
     storage.snapshot(store);
 }

@@ -6,7 +6,7 @@ int main() {
     DB db("data.log");
     std::string command;
 
-    std::cout << "Simple DB CLI. Commands: put <key> <value>, get <key>, del <key>, exit\n";
+    std::cout << "Simple DB CLI. Commands: put <key> <value>, get <key>, del <key>, range <startKey> <endKey>, exit\n";
     while (true) {
         std::cout << "> ";
         std::string line;
