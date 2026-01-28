@@ -5,6 +5,7 @@
 Storage::Storage(const std::string& file)
     :filename(file){
         replay();
+        logOut.open(filename, std::ios::app);
     }
 
 void Storage::replay() {
@@ -43,8 +44,8 @@ const std::unordered_map<std::string, std::string>& Storage::load() const {
 }
 
 void Storage::appendput(const std::string& key, const std::string& value) {
-    std::ofstream out(filename, std::ios::app);
-    out << "PUT " << key << " " << value << "\n";
+    logOut << "PUT " << key << " " << value << "\n";
+    logOut.flush();
 
 }
 
@@ -54,13 +55,18 @@ void Storage::appenddel(const std::string& key) {
 }
 
 void Storage::snapshot(const std::unordered_map<std::string, std::string>& data) {
-    std::ofstream out("snapshot.tmp");
-    for (const auto& [key, value] : data) {
-        out << key << " " << value << "\n";
-    }
-    out.close();
-    std::remove("snapshot.db");
-    std::rename("snapshot.tmp", "snapshot.db");
 
-    std::ofstream clearLog(filename, std::ios::trunc);
+    const std::string tmp = "snapshot.tmp";
+    const std::string snap = "snapshot.db";
+    {
+        std::ofstream out(tmp, std::ios::trunc);
+        for (const auto& [key, value] : data) {
+            out << key << " " << value << "\n";
+        }
+        out.flush();
+    }
+    std::remove(snap.c_str());
+    std::rename(tmp.c_str(), snap.c_str());
+
+    std::ofstream clear(filename, std::ios::trunc);
 }

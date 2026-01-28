@@ -4,6 +4,7 @@
 #include <sstream>
 
 DB::DB(const std::string& filename) : storage(filename) {
+    store.reserve(100000);
     store = storage.load();
     std::ifstream infile(filename);
     std::string line;

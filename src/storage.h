@@ -17,6 +17,7 @@ public:
     const std::unordered_map<std::string, std::string>& load() const;
 
     private:
+        std::ofstream logOut;
         std::string filename;
         std::unordered_map<std::string, std::string> kv;
 
