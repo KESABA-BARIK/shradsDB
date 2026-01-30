@@ -17,11 +17,14 @@ public:
     void snapshot(const std::map<std::string, std::string>& data);
 
     const std::map<std::string, std::string>& load() const;
+    size_t logSize() const;
+    void replaceLog(const std::string& tempFile);
 
     private:
         std::ofstream logOut;
         std::string filename;
         std::map<std::string, std::string> kv;
+        std::string logFilename;
 
         void replay();
 };

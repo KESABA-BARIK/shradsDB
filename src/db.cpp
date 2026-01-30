@@ -2,12 +2,15 @@
 
 #include <fstream>
 #include <sstream>
+#include <mutex>
 #include <vector>
 
 DB::DB(const std::string& filename) : storage(filename) {
     store = storage.load();
     std::ifstream infile(filename);
     std::string line;
+    
+    
 
     while (std::getline(infile, line)) {
         std::istringstream iss(line);
@@ -23,12 +26,22 @@ DB::DB(const std::string& filename) : storage(filename) {
             store.erase(key);
         }
     }
+    constexpr size_t MAX_LOG_SIZE = 1 * 1024 * 1024; 
+
+    if (storage.logSize() > MAX_LOG_SIZE) {
+        compact();
+    }
 }
 
 void DB::put(const std::string& key, const std::string& value) {
-    std::shared_lock lock(rwlock);
+    std::unique_lock lock(rwlock);
     storage.appendput(key, value);
-    store[key] = value;
+    memtable[key] = value;
+    memtableSize += key.size() + value.size();
+    if(memtableSize >= MEMTABLE_LIMIT){
+        flushmemtable();
+    }
+    // store[key] = value;
 }
 
 std::optional<std::string> DB::get(const std::string& key) {
@@ -56,12 +69,33 @@ std::vector<std::pair<std::string, std::string>> DB::getRange(const std::string&
 }
 
 void DB::del(const std::string& key) {
-    std::shared_lock lock(rwlock);
+    std::unique_lock lock(rwlock);
     storage.appenddel(key);
     store.erase(key);
 }
 
 void DB::snapshot() {
-    std::shared_lock lock(rwlock);
+    std::unique_lock lock(rwlock);
     storage.snapshot(store);
+}
+
+void DB::flushmemtable() {
+    std::unique_lock lock(rwlock);
+    for(const auto& [mkey, mvalue] : memtable){
+        store[mkey] = mvalue;
+    }
+    memtable.clear();
+    memtableSize = 0;
+}
+
+void DB::compact() {
+    std::unique_lock lock(rwlock);
+    std::string tempFile = "data.compact";
+    std::ofstream out(tempFile, std::ios::trunc);
+    for(const auto& [key, value] : store) {
+        out << "PUT " << key << " " << value << "\n";
+    }
+    out.flush();
+    out.close();
+    storage.replaceLog(tempFile);
 }

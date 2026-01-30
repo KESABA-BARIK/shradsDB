@@ -1,6 +1,7 @@
 #include "storage.h"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 Storage::Storage(const std::string& file)
     :filename(file){
@@ -69,4 +70,12 @@ void Storage::snapshot(const std::map<std::string, std::string>& data) {
     std::rename(tmp.c_str(), snap.c_str());
 
     std::ofstream clear(filename, std::ios::trunc);
+}
+
+size_t Storage::logSize() const {
+    return std::filesystem::file_size(filename);
+}
+
+void Storage::replaceLog(const std::string& tempFile) {
+    std::rename(tempFile.c_str(), filename.c_str());
 }
